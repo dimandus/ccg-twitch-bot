@@ -1,0 +1,32 @@
+{
+  "productName": "CCG Twitch Bot",
+  "appId": "com.ccg.twitchbot",
+  "files": [
+    "build/**/*",
+    "node_modules/**/*",
+    "public/main.js",
+    "public/preload.js",
+    "public/lib/**/*",
+    "overlay-server.js",
+    "overlay-dist/**/*",
+    "data/test-cards.json"
+  ],
+  "asarUnpack": [
+    "overlay-server.js",
+    "public/lib/**",
+    "data/test-cards.json"
+  ],
+  "directories": {
+    "buildResources": "assets"
+  },
+  "win": {
+    "target": [
+      "nsis",
+      "portable"
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  }
+}

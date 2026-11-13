@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПокеВайфу Оверлей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 1080px;
+            aspect-ratio: 225 / 350;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s ease-out;
+        }
+
+        .card-wrapper.show {
+            opacity: 1;
+            transform: scale(1);
+            animation: cardEntry 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cardEntry {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotateY(90deg);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        @keyframes cardExit {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) rotateY(-90deg);
+            }
+        }
+
+        .card-wrapper.hide {
+            animation: cardExit 0.5s cubic-bezier(0.64, 0, 0.78, 0.15);
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .card-image-container {
+            width: 100%;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+        }
+
+        .card-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .card-rarity {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+        }
+
+        .card-message {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(42, 42, 62, 0.95) 100%);
+            border-top: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .card-message-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 32px;
+            font-weight: 500;
+        }
+
+        .card-message-username {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .card-message-cardname {
+            color: #764ba2;
+            font-weight: 700;
+        }
+
+        /* Цветовые акценты в зависимости от цвета карточки */
+        .card-message {
+            border-top: 3px solid currentColor;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-container">
+        <div class="card-wrapper" id="cardWrapper">
+            <div class="card" id="card">
+                <div class="card-image-container" id="cardImageContainer">
+                    <img id="cardImage" class="card-image" alt="">
+                    <div class="card-overlay"></div>
+                    <div class="card-rarity" id="cardRarity"></div>
+                    <div class="card-title" id="cardTitle"></div>
+                </div>
+                <div class="card-message" id="cardMessage">
+                    <div class="card-message-text">
+                        <span class="card-message-username" id="cardUsername"></span>
+                        получил
+                        <span class="card-message-cardname" id="cardCardName"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        let hideTimeout = null;
+
+        ws.onopen = () => {
+            console.log('✅ Подключено к оверлею на:', window.location.host);
+        };
+
+        ws.onmessage = (event) => {
+            console.log('📨 Получено сообщение от сервера:', event.data.substring(0, 300));
+            try {
+                const message = JSON.parse(event.data);
+                console.log('📦 Parsed message type:', message.type);
+
+                // Поддерживаем несколько форматов: 'card' (старый) и 'show-card' (сервер)
+                if (message.type === 'card' || message.type === 'show-card') {
+                    console.log('🎴 Показываю карточку:', message.data && message.data.cardName);
+                    showCard(message.data);
+                } else if (message.type === 'hide' || message.type === 'hide-card') {
+                    console.log('🚫 Скрываю карточку');
+                    hideCard();
+                } else {
+                    console.log('ℹ️ Неизвестный тип сообщения:', message.type);
+                }
+            } catch (e) {
+                console.error('❌ Ошибка парсинга JSON:', e.message);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('❌ WebSocket ошибка:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('⚠️ WebSocket закрыт');
+        };
+
+        function showCard(cardData) {
+            console.log('🎨 showCard вызвана с данными:', cardData);
+            const {
+                username,
+                cardName,
+                cardColor = '#FF6B35',
+                cardImage = '',
+                rarity = '',
+            } = cardData;
+
+            console.log('👤 Username:', username);
+            console.log('🎴 CardName:', cardName);
+            console.log('🖼️ CardImage:', cardImage ? 'присутствует (' + cardImage.length + ' байт)' : 'отсутствует');
+
+            // Очищаем предыдущий таймаут
+            if (hideTimeout) clearTimeout(hideTimeout);
+
+            // Обновляем данные карточки
+            document.getElementById('cardImage').src = cardImage;
+            document.getElementById('cardTitle').textContent = cardName;
+            document.getElementById('cardRarity').textContent = rarity;
+            document.getElementById('cardUsername').textContent = username;
+            document.getElementById('cardCardName').textContent = cardName;
+
+            console.log('🎨 Установлены элементы DOM');
+
+            // Устанавливаем цвет
+            const card = document.getElementById('card');
+            const imageContainer = document.getElementById('cardImageContainer');
+            const message = document.getElementById('cardMessage');
+
+            imageContainer.style.borderBottom = `4px solid ${cardColor}`;
+            message.style.borderTopColor = cardColor;
+            message.style.color = cardColor;
+
+            console.log('🌈 Установлены цвета:', cardColor);
+
+            // Показываем карточку
+            const wrapper = document.getElementById('cardWrapper');
+            wrapper.classList.remove('hide');
+            wrapper.classList.add('show');
+
+            console.log('📺 Карточка показана (добавлен класс show)');
+
+            // Автоматически скрываем через 6 секунд
+            hideTimeout = setTimeout(() => {
+                console.log('⏰ Таймаут 6 секунд - скрываю карточку');
+                hideCard();
+            }, 6000);
+        }
+
+        function hideCard() {
+            console.log('🚫 hideCard вызвана');
+            const wrapper = document.getElementById('cardWrapper');
+            wrapper.classList.remove('show');
+            wrapper.classList.add('hide');
+
+            setTimeout(() => {
+                wrapper.classList.remove('hide');
+            }, 500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+[
+  { "id": 1, "name": "Бульбазавр", "color": "#78C850", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/1.png", "rarity": "Common" },
+  { "id": 2, "name": "Чаризард", "color": "#FF6B35", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/6.png", "rarity": "Rare" },
+  { "id": 3, "name": "Сквиртл", "color": "#6890F0", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/7.png", "rarity": "Common" },
+  { "id": 4, "name": "Пикачу", "color": "#F7DC6F", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/25.png", "rarity": "Common" },
+  { "id": 5, "name": "Нидоран", "color": "#A8A878", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/29.png", "rarity": "Common" },
+  { "id": 6, "name": "Пиджи", "color": "#A890F0", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/16.png", "rarity": "Common" },
+  { "id": 7, "name": "Мяут", "color": "#F39C12", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/58.png", "rarity": "Uncommon" },
+  { "id": 8, "name": "Люмеон", "color": "#3498DB", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/135.png", "rarity": "Uncommon" },
+  { "id": 9, "name": "Иви", "color": "#C18372", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/133.png", "rarity": "Uncommon" },
+  { "id": 10, "name": "Снорлакс", "color": "#7AC74C", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/143.png", "rarity": "Rare" },
+  { "id": 11, "name": "Артикуно", "color": "#98D8D8", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/144.png", "rarity": "Rare" },
+  { "id": 12, "name": "Запдос", "color": "#F7D02C", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/145.png", "rarity": "Rare" },
+  { "id": 13, "name": "Мьюту", "color": "#9B59B6", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/150.png", "rarity": "Epic" },
+  { "id": 14, "name": "Драконайт", "color": "#B8A1F3", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/149.png", "rarity": "Epic" },
+  { "id": 15, "name": "Генгар", "color": "#705898", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/94.png", "rarity": "Epic" },
+  { "id": 16, "name": "Лапрас", "color": "#5DADE2", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/131.png", "rarity": "Uncommon" },
+  { "id": 17, "name": "Дито", "color": "#E8A87C", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/132.png", "rarity": "Rare" },
+  { "id": 18, "name": "Мью", "color": "#FF9FF3", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/151.png", "rarity": "Legendary" },
+  { "id": 19, "name": "Драгонит", "color": "#E74C3C", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/149.png", "rarity": "Legendary" },
+  { "id": 20, "name": "Арканайн", "color": "#E67E22", "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/pokemon/other/official-artwork/59.png", "rarity": "Legendary" }
+]
