@@ -196,8 +196,13 @@
     </div>
 
     <script>
+        const DISPLAY_MS = 6000;
+        const HIDE_ANIM_MS = 500;
+
         const ws = new WebSocket(`ws://${window.location.host}`);
         let hideTimeout = null;
+        const cardQueue = [];
+        let isPresenting = false;
 
         ws.onopen = () => {
             console.log('✅ Подключено к оверлею на:', window.location.host);
@@ -209,13 +214,11 @@
                 const message = JSON.parse(event.data);
                 console.log('📦 Parsed message type:', message.type);
 
-                // Поддерживаем несколько форматов: 'card' (старый) и 'show-card' (сервер)
                 if (message.type === 'card' || message.type === 'show-card') {
-                    console.log('🎴 Показываю карточку:', message.data && message.data.cardName);
-                    showCard(message.data);
+                    enqueueCard(message.data);
                 } else if (message.type === 'hide' || message.type === 'hide-card') {
-                    console.log('🚫 Скрываю карточку');
-                    hideCard();
+                    console.log('🚫 Скрыть и очистить очередь');
+                    cancelPresentation();
                 } else {
                     console.log('ℹ️ Неизвестный тип сообщения:', message.type);
                 }
@@ -232,8 +235,27 @@
             console.log('⚠️ WebSocket закрыт');
         };
 
-        function showCard(cardData) {
-            console.log('🎨 showCard вызвана с данными:', cardData);
+        function enqueueCard(cardData) {
+            if (!cardData) return;
+            cardQueue.push(cardData);
+            console.log(
+                '📋 В очередь оверлея:',
+                cardData.cardName,
+                '| длина:',
+                cardQueue.length,
+                isPresenting ? '(идёт показ)' : ''
+            );
+            processQueue();
+        }
+
+        function processQueue() {
+            if (isPresenting || cardQueue.length === 0) return;
+            isPresenting = true;
+            presentCard(cardQueue.shift());
+        }
+
+        function presentCard(cardData) {
+            console.log('🎨 Показ карточки:', cardData.cardName, 'для', cardData.username);
             const {
                 username,
                 cardName,
@@ -242,56 +264,54 @@
                 rarity = '',
             } = cardData;
 
-            console.log('👤 Username:', username);
-            console.log('🎴 CardName:', cardName);
-            console.log('🖼️ CardImage:', cardImage ? 'присутствует (' + cardImage.length + ' байт)' : 'отсутствует');
-
-            // Очищаем предыдущий таймаут
-            if (hideTimeout) clearTimeout(hideTimeout);
-
-            // Обновляем данные карточки
             document.getElementById('cardImage').src = cardImage;
             document.getElementById('cardTitle').textContent = cardName;
             document.getElementById('cardRarity').textContent = rarity;
             document.getElementById('cardUsername').textContent = username;
             document.getElementById('cardCardName').textContent = cardName;
 
-            console.log('🎨 Установлены элементы DOM');
-
-            // Устанавливаем цвет
-            const card = document.getElementById('card');
             const imageContainer = document.getElementById('cardImageContainer');
             const message = document.getElementById('cardMessage');
-
             imageContainer.style.borderBottom = `4px solid ${cardColor}`;
             message.style.borderTopColor = cardColor;
             message.style.color = cardColor;
 
-            console.log('🌈 Установлены цвета:', cardColor);
-
-            // Показываем карточку
             const wrapper = document.getElementById('cardWrapper');
-            wrapper.classList.remove('hide');
+            wrapper.classList.remove('hide', 'show');
+            void wrapper.offsetWidth;
             wrapper.classList.add('show');
 
-            console.log('📺 Карточка показана (добавлен класс show)');
-
-            // Автоматически скрываем через 6 секунд
             hideTimeout = setTimeout(() => {
-                console.log('⏰ Таймаут 6 секунд - скрываю карточку');
-                hideCard();
-            }, 6000);
+                hideTimeout = null;
+                console.log('⏰ Скрываю карточку после', DISPLAY_MS, 'мс');
+                runHideAnimation(() => {
+                    isPresenting = false;
+                    processQueue();
+                });
+            }, DISPLAY_MS);
         }
 
-        function hideCard() {
-            console.log('🚫 hideCard вызвана');
+        function runHideAnimation(onComplete) {
             const wrapper = document.getElementById('cardWrapper');
             wrapper.classList.remove('show');
             wrapper.classList.add('hide');
-
             setTimeout(() => {
                 wrapper.classList.remove('hide');
-            }, 500);
+                if (onComplete) onComplete();
+            }, HIDE_ANIM_MS);
+        }
+
+        function cancelPresentation() {
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
+            }
+            cardQueue.length = 0;
+            const wasPresenting = isPresenting;
+            isPresenting = false;
+            if (wasPresenting) {
+                runHideAnimation(null);
+            }
         }
     </script>
 </body>

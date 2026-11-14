@@ -1,6 +1,6 @@
 {
   "name": "ccg-twitch-bot",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Twitch Bot для игры CCG",
   "main": "public/main.js",
   "homepage": "./",
